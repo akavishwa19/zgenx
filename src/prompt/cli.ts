@@ -55,10 +55,6 @@ async function defineConfig(): Promise<Config> {
         {
           name: 'ADVANCED: src-> routes-> controllers-> services',
           value: 'advanced'
-        },
-        {
-          name: 'ULTRA: src-> routes-> controllers-> services-> models',
-          value: 'ultra'
         }
       ]
     });
