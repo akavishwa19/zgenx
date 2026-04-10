@@ -8,9 +8,9 @@ const { create, update, remove, get, list } = require('../controllers/<%= api %>
 const router = express.Router();
 
 router.post('/', create);
-router.put('/', update);
-router.delete('/', remove);
-router.get('/', get);
+router.put('/:id', update);
+router.delete('/:id', remove);
+router.get('/:id', get);
 router.get('/list', list);
 <% if(type ==='esm') { %>
 export default router;
