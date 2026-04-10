@@ -1,0 +1,100 @@
+<% 
+const entityName = entity.charAt(0).toUpperCase() + entity.slice(1);
+const className = entityName + 's';
+%>
+
+<% if (type === 'esm') { %>
+import { <%= className %> } from '../models/<%= entity %>';
+import { v4 as uuidv4 } from 'uuid';
+<% if (language === 'typescript') { %>
+import { Request, Response } from 'express';
+<% } %>
+<% } else { %>
+const { <%= className %> } = require('../models/<%= entity %>');
+const { v4: uuidv4 } = require('uuid');
+<% } %>
+
+const create = async (req<% if(language==='typescript'){ %>: Request<% } %>, res<% if(language==='typescript'){ %>: Response<% } %>) => {
+  try {
+    const id = uuidv4();
+    await <%= className %>.insert(id, req.body);
+    return res.status(201).json({ success: true, data: { id } });
+  } catch (error<% if(language==='typescript'){ %>: unknown<% } %>) {
+    return res.status(500).json({ success: false, message: 'Failed to create <%= entity %>' });
+  }
+};
+
+const update = async (req<% if(language==='typescript'){ %>: Request<% } %>, res<% if(language==='typescript'){ %>: Response<% } %>) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ success: false, message: 'id is required' });
+    }
+
+    const existing = await <%= className %>.get(id);
+    if (!existing) {
+      return res.status(404).json({ success: false, message: '<%= entityName %> not found' });
+    }
+
+    await <%= className %>.update(id, req.body);
+    return res.status(200).json({ success: true, data: { id } });
+  } catch (error<% if(language==='typescript'){ %>: unknown<% } %>) {
+    return res.status(500).json({ success: false, message: 'Failed to update <%= entity %>' });
+  }
+};
+
+const get = async (req<% if(language==='typescript'){ %>: Request<% } %>, res<% if(language==='typescript'){ %>: Response<% } %>) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ success: false, message: 'id is required' });
+    }
+
+    const data = await <%= className %>.get(id);
+
+    if (!data) {
+      return res.status(404).json({ success: false, message: '<%= entityName %> not found' });
+    }
+
+    return res.status(200).json({ success: true, data });
+  } catch (error<% if(language==='typescript'){ %>: unknown<% } %>) {
+    return res.status(500).json({ success: false, message: 'Failed to fetch <%= entity %>' });
+  }
+};
+
+const list = async (_req<% if(language==='typescript'){ %>: Request<% } %>, res<% if(language==='typescript'){ %>: Response<% } %>) => {
+  try {
+    const data = await <%= className %>.list();
+    return res.status(200).json({ success: true, data });
+  } catch (error<% if(language==='typescript'){ %>: unknown<% } %>) {
+    return res.status(500).json({ success: false, message: 'Failed to list <%= entity %>' });
+  }
+};
+
+const remove = async (req<% if(language==='typescript'){ %>: Request<% } %>, res<% if(language==='typescript'){ %>: Response<% } %>) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ success: false, message: 'id is required' });
+    }
+
+    const existing = await <%= className %>.get(id);
+    if (!existing) {
+      return res.status(404).json({ success: false, message: '<%= entityName %> not found' });
+    }
+
+    await <%= className %>.delete(id);
+    return res.status(200).json({ success: true, data: { id } });
+  } catch (error<% if(language==='typescript'){ %>: unknown<% } %>) {
+    return res.status(500).json({ success: false, message: 'Failed to delete <%= entity %>' });
+  }
+};
+
+<% if (type === 'esm') { %>
+export { create, update, get, list, remove };
+<% } else { %>
+module.exports = { create, update, get, list, remove };
+<% } %>
