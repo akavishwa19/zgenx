@@ -1,0 +1,34 @@
+<% if(type==='esm') { %>
+import mysql<% if(language==='typescript') { %>,{ PoolOptions } <% } %> from 'mysql2/promise';
+import logger from '../utils/logger';
+<% } else { %>
+const mysql = require('mysql2/promise');
+const logger = require('../utils/logger');
+<% } %>
+
+const dbConfig <% if (language==='typescript') { %> : PoolOptions <% } %>  = {
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
+};
+
+const dbClient = mysql.createPool(dbConfig);
+
+const connectToDb = async () <% if (language === 'typescript') { %> : Promise<void> <% } %> => {
+  try {
+    const connection = await dbClient.getConnection();
+    logger.info('connected to database successfully');
+    connection.release();
+  } catch (error <% if(language==='typescript')  { %> : unknown <% } %> ) {
+    logger.error({ error }, 'error connecting to database');
+    throw new Error('error connecting to database');
+  }
+};
+
+<% if(type==='esm') { %>
+export { dbClient, connectToDb };
+<% } else { %>
+module.exports= { dbClient, connectToDb }
+<% } %>  
