@@ -1,0 +1,37 @@
+<% if(type==='esm') { %>
+import { MongoClient<% if(language==='typescript') { %>, Db<% } %> } from 'mongodb';
+import logger from '../utils/logger';
+<% } else { %>
+const { MongoClient } = require('mongodb');
+const logger = require('../utils/logger');
+<% } %>
+
+const uri = process.env.MONGO_URI;
+
+const client = new MongoClient(uri);
+
+let db <% if(language==='typescript') { %>: Db <% } %>;
+
+const connectToDb = async () <% if (language === 'typescript') { %>: Promise<void><% } %> => {
+  try {
+    await client.connect();
+    db = client.db(process.env.DB_NAME);
+    logger.info('connected to mongodb successfully');
+  } catch (error <% if(language==='typescript') { %>: unknown<% } %>) {
+    logger.error({ error }, 'error connecting to mongodb');
+    throw new Error('error connecting to mongodb');
+  }
+};
+
+const getDb = () <% if (language === 'typescript') { %>: Db<% } %> => {
+  if (!db) {
+    throw new Error('database not initialized. Call connectToDb first.');
+  }
+  return db;
+};
+
+<% if(type==='esm') { %>
+export { client, connectToDb, getDb };
+<% } else { %>
+module.exports = { client, connectToDb, getDb };
+<% } %>
