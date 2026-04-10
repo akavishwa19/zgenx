@@ -1,0 +1,101 @@
+<% if (type === 'esm') { %>
+import express from 'express';
+<% if (language === 'typescript') { %>
+import type { Request, Response } from 'express';
+import type { Server } from 'http';
+<% } %>
+import 'dotenv/config';
+<% if (logger === 'yes') { %>
+import logger from './utils/logger';
+<% } %>
+import { connectToDb } from './db/client';
+import router from './routes';
+<% } else { %>
+const express = require('express');
+require('dotenv/config');
+<% if (logger === 'yes') { %>
+const logger = require('./utils/logger');
+<% } %>
+const { connectToDb } = require('./db/client');
+const router = require('./routes');
+<% } %>
+
+const app = express();
+
+app.use(express.json());
+
+const port = process.env.PORT;
+let server <% if (language === 'typescript') { %>: Server | undefined <% } %>;
+
+<%
+const logInfo = logger === 'yes' ? 'logger.info' : 'console.log';
+const logError = logger === 'yes' ? 'logger.error' : 'console.error';
+%>
+
+function setupRoutes() {
+  app.use('/api/v1', router);
+}
+
+const startServer = async () <% if (language === 'typescript') { %>: Promise<void><% } %> => {
+  setupRoutes();
+  await connectToDb();
+  server = app.listen(port, () => {
+    <%= logInfo %>('app listening on http://localhost:' + port);
+  });
+};
+
+function stopServer(signal <% if (language === 'typescript') { %>: string, code: number<% } %>) {
+  <%= logInfo %>(`recieved ${signal} , stopping server gracefully`);
+  if (server) {
+    server.close(() => {
+      <%= logInfo %>('server closed succesfully');
+      process.exit(code);
+    });
+  } else {
+    process.exit(code);
+  }
+}
+
+process.once('SIGINT', () => {
+  stopServer('SIGINT', 0);
+});
+
+process.once('SIGTERM', () => {
+  stopServer('SIGTERM', 0);
+});
+
+process.on('uncaughtException', (error <% if (language === 'typescript') { %>: unknown<% } %>) => {
+  <%= logError %>({ error }, 'uncaught exception');
+  stopServer('UNCAUGHT_EXCEPTION', 1);
+});
+
+process.on('unhandledRejection', (error <% if (language === 'typescript') { %>: unknown<% } %>) => {
+  <%= logError %>({ error }, 'unhandled rejection');
+  stopServer('UNHANDLED_REJECTION', 1);
+});
+
+async function bootstrapApplication() <% if (language === 'typescript') { %>: Promise<void><% } %> {
+  try {
+    await startServer();
+  } catch (error) {
+    if (error instanceof Error) {
+      <%= logError %>(
+        { message: error.message, stack: error.stack },
+        'failed to bootstrap application'
+      );
+    } else {
+      <%= logError %>({ error }, 'failed to bootstrap application');
+    }
+    stopServer('STARTUP_ERROR', 1);
+  }
+}
+
+if (process.env.NODE_ENV !== 'test') {
+  bootstrapApplication();
+}
+
+<% if (type === 'esm') { %>
+export { bootstrapApplication };
+<% } else { %>
+module.exports = { bootstrapApplication };
+<% } %>
