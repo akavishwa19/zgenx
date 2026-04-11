@@ -1,13 +1,12 @@
-import path from 'path';
-import fs from 'fs/promises';
 import { Config } from '../types/config';
 import { CONFIG_FILE_NAME } from '../consts';
+import { buildPath, getRoot, readFile, saveAsJson } from './file';
 
 async function readConfig() {
-  const root = process.cwd();
-  const filePath = path.join(root, CONFIG_FILE_NAME);
-  const rawData = await fs.readFile(filePath, 'utf-8');
-  return JSON.parse(rawData) as Config;
+  const root = getRoot();
+  const filePath = buildPath(root, CONFIG_FILE_NAME);
+  const data = readFile(filePath);
+  return JSON.parse(data) as Config;
 }
 
 async function saveConfig(data: Config): Promise<void> {
@@ -15,9 +14,9 @@ async function saveConfig(data: Config): Promise<void> {
     throw new Error('invalid data to write file');
   }
 
-  const root = process.cwd();
-  const savePath = path.join(root, CONFIG_FILE_NAME);
-  await fs.writeFile(savePath, JSON.stringify(data, null, 2), 'utf-8');
+  const root = getRoot();
+  const savePath = buildPath(root, CONFIG_FILE_NAME);
+  saveAsJson(savePath, data);
 }
 
 export { readConfig, saveConfig };
