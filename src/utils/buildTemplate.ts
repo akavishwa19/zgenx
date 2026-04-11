@@ -5,7 +5,7 @@ import { Config } from '../types/config';
 async function buildTemplate(
   inputPath: string,
   outputPath: string,
-  options: Partial<Config>
+  options?: Partial<Config>
 ) {
   const inputData = readFile(inputPath);
   const outputData = renderTemplate(inputData, options);
