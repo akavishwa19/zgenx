@@ -43,7 +43,18 @@ async function generateApi() {
   if (docker === 'yes') {
     buildTemplate(
       buildPath(templateRoot, 'docker', 'dockerfile.ejs'),
-      buildPath(outputRoot, '..', 'containers', `Dockerfile`)
+      buildPath(outputRoot, '..', 'containers', `Dockerfile`),
+      {
+        cmd: 'start'
+      }
+    );
+
+    buildTemplate(
+      buildPath(templateRoot, 'docker', 'dockerfile.ejs'),
+      buildPath(outputRoot, '..', 'containers', `Dockerfile.dev`),
+      {
+        cmd: 'dev'
+      }
     );
 
     buildTemplate(
