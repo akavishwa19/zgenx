@@ -1,5 +1,5 @@
 {
-  "name": "n-gen",
+  "name": "zgenx",
   "version": "0.0.0",
   "description": "node utility to build APIs at pace",
   "keywords": [
@@ -12,10 +12,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/akavishwa19/n-gen"
+    "url": "https://github.com/akavishwa19/zgenx"
   },
   "bugs": {
-    "url": "https://github.com/akavishwa19/n-gen/issues"
+    "url": "https://github.com/akavishwa19/zgenx/issues"
   },
   "author": "Akash Vishwakarma <akash19102001@gmail.com> (https://www.akashvishwakarma.com)",
   "license": "MIT",
