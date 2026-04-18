@@ -26,11 +26,10 @@ app.use(express.json());
 
 const port = process.env.PORT;
 let server<%_ if (language === 'typescript') { _%>: Server | undefined<%_ } _%>;
-
-<%
+<%_
 const logInfo = logger === 'yes' ? 'logger.info' : 'console.log';
 const logError = logger === 'yes' ? 'logger.error' : 'console.error';
-%>
+_%>
 
 function setupRoutes() {
   app.use('/api/v1', router);
