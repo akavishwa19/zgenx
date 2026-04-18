@@ -1,8 +1,7 @@
-<%
+<%_
 const apiName = api.charAt(0).toUpperCase() + api.slice(1);
 const className = apiName + 's';
-%>
-
+_%>
 <%_ if (type === 'esm') { _%>
 import { <%= className %> } from '../models/<%= api %>';
 import { v4 as uuidv4 } from 'uuid';
@@ -19,17 +18,19 @@ const { v4: uuidv4 } = require('uuid');
 const logger = require('../utils/logger');
 <%_ } _%>
 <%_ } _%>
-
-<%
+<%_
 const logError = logger === 'yes' ? 'logger.error' : 'console.error';
 const logInfo = logger === 'yes' ? 'logger.info' : 'console.log';
-%>
+const idExtract = language === 'typescript'
+  ? 'const id = req.params.id as string;'
+  : 'const { id } = req.params;';
+_%>
 
 const create = async (req<%_ if (language === 'typescript') { _%>: Request<%_ } _%>, res<%_ if (language === 'typescript') { _%>: Response<%_ } _%>) => {
   try {
     const id = uuidv4();
     await <%= className %>.insert(id, req.body);
-    <%= logInfo %>('Created <%= api %> with id:', id);
+    <%= logInfo %>(`Created <%= api %> with id: ${id}`);
     return res.status(201).json({ success: true, data: { id } });
   } catch (error<%_ if (language === 'typescript') { _%>: unknown<%_ } _%>) {
     <%= logError %>({ error }, 'Failed to create <%= api %>');
@@ -39,7 +40,7 @@ const create = async (req<%_ if (language === 'typescript') { _%>: Request<%_ } 
 
 const update = async (req<%_ if (language === 'typescript') { _%>: Request<%_ } _%>, res<%_ if (language === 'typescript') { _%>: Response<%_ } _%>) => {
   try {
-    const { id } = req.params;
+    <%= idExtract %>
 
     if (!id) {
       return res.status(400).json({ success: false, message: 'id is required' });
@@ -51,7 +52,7 @@ const update = async (req<%_ if (language === 'typescript') { _%>: Request<%_ } 
     }
 
     await <%= className %>.update(id, req.body);
-    <%= logInfo %>('Updated <%= api %> with id:', id);
+    <%= logInfo %>(`Updated <%= api %> with id: ${id}`);
     return res.status(200).json({ success: true, data: { id } });
   } catch (error<%_ if (language === 'typescript') { _%>: unknown<%_ } _%>) {
     <%= logError %>({ error }, 'Failed to update <%= api %>');
@@ -61,7 +62,7 @@ const update = async (req<%_ if (language === 'typescript') { _%>: Request<%_ } 
 
 const get = async (req<%_ if (language === 'typescript') { _%>: Request<%_ } _%>, res<%_ if (language === 'typescript') { _%>: Response<%_ } _%>) => {
   try {
-    const { id } = req.params;
+    <%= idExtract %>
 
     if (!id) {
       return res.status(400).json({ success: false, message: 'id is required' });
@@ -73,6 +74,7 @@ const get = async (req<%_ if (language === 'typescript') { _%>: Request<%_ } _%>
       return res.status(404).json({ success: false, message: '<%= apiName %> not found' });
     }
 
+    <%= logInfo %>(`Fetched <%= api %> with id: ${id}`);
     return res.status(200).json({ success: true, data });
   } catch (error<%_ if (language === 'typescript') { _%>: unknown<%_ } _%>) {
     <%= logError %>({ error }, 'Failed to fetch <%= api %>');
@@ -83,6 +85,7 @@ const get = async (req<%_ if (language === 'typescript') { _%>: Request<%_ } _%>
 const list = async (_req<%_ if (language === 'typescript') { _%>: Request<%_ } _%>, res<%_ if (language === 'typescript') { _%>: Response<%_ } _%>) => {
   try {
     const data = await <%= className %>.list();
+    <%= logInfo %>(`Fetched <%= api %> list`);
     return res.status(200).json({ success: true, data });
   } catch (error<%_ if (language === 'typescript') { _%>: unknown<%_ } _%>) {
     <%= logError %>({ error }, 'Failed to list <%= api %>');
@@ -92,7 +95,7 @@ const list = async (_req<%_ if (language === 'typescript') { _%>: Request<%_ } _
 
 const remove = async (req<%_ if (language === 'typescript') { _%>: Request<%_ } _%>, res<%_ if (language === 'typescript') { _%>: Response<%_ } _%>) => {
   try {
-    const { id } = req.params;
+    <%= idExtract %>
 
     if (!id) {
       return res.status(400).json({ success: false, message: 'id is required' });
@@ -104,7 +107,7 @@ const remove = async (req<%_ if (language === 'typescript') { _%>: Request<%_ } 
     }
 
     await <%= className %>.delete(id);
-    <%= logInfo %>('Deleted <%= api %> with id:', id);
+    <%= logInfo %>(`Deleted <%= api %> with id: ${id}`);
     return res.status(200).json({ success: true, data: { id } });
   } catch (error<%_ if (language === 'typescript') { _%>: unknown<%_ } _%>) {
     <%= logError %>({ error }, 'Failed to delete <%= api %>');
