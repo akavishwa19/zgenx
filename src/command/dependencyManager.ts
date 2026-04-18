@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 async function manageDeps(options: Partial<Config>): Promise<void> {
   const { database, language, logger: loggerOption } = options;
 
-  const deps = ['express', 'uuid'];
+  const deps = ['express', 'uuid', 'dotenv'];
   const devDeps = [];
 
   if (database === 'mysql') {
