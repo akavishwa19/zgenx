@@ -1,6 +1,6 @@
 {
   "name": "zgenx",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "node utility to build APIs at pace",
   "keywords": [
     "express",
@@ -29,10 +29,10 @@
     "format:check": "prettier --log-level=silent --check .",
     "clean": "rimraf dist",
     "build": "tsc --project tsconfig.json",
-    "pretest":"npm run clean && npm run build",
+    "pretest": "npm run clean && npm run build",
     "test": "jest",
     "test:coverage": "jest --coverage --runInBand",
-    "prelint":"npm run clean && npm run build",
+    "prelint": "npm run clean && npm run build",
     "lint:fix": "eslint --fix src tests",
     "lint": "eslint src tests",
     "dev": "ts-node src/index.ts",
