@@ -1,6 +1,6 @@
 import { readConfig } from '../utils/config';
 import buildTemplate from '../utils/buildTemplate';
-import { buildPath, getCliRoot, getRoot } from '../utils/file';
+import { buildPath, getCliRoot, getRoot, isFilePresent } from '../utils/file';
 import { manageDeps } from './dependencyManager';
 
 //eslint-disable-next-line complexity
@@ -172,6 +172,20 @@ async function generateApi() {
         }
       );
     }
+  }
+
+  //generate envs
+  if (isFilePresent(buildPath(appRoot, '.env'))) {
+    buildTemplate(
+      buildPath(templateRoot, 'envs', 'env.ejs'),
+      buildPath(outputRoot, '..', '.env')
+    );
+  }
+  if (isFilePresent(buildPath(appRoot, 'docker.env'))) {
+    buildTemplate(
+      buildPath(templateRoot, 'envs', 'docker.env.ejs'),
+      buildPath(outputRoot, '..', 'docker.env')
+    );
   }
 
   //install deps based on config
