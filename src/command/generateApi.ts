@@ -89,7 +89,7 @@ async function generateApi() {
     );
   }
 
-  //types
+  //types and tsconfig
   if (language === 'typescript') {
     for (const api of apis) {
       buildTemplate(
@@ -102,6 +102,11 @@ async function generateApi() {
         }
       );
     }
+
+    buildTemplate(
+      buildPath(templateRoot, 'base', 'tsconfig.json'),
+      buildPath(outputRoot, '..', 'tsconfig.json')
+    );
   }
 
   //models
