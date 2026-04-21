@@ -14,6 +14,13 @@ function buildPath(...paths: string[]): string {
   return path.join(...paths);
 }
 
+function isFilePresent(filePath: string): boolean {
+  if (fs.existsSync(filePath)) {
+    return true;
+  }
+  return false;
+}
+
 function ensureDirectory(dirPath: string): void {
   if (!dirPath) {
     throw new Error('path is required to ensure directory');
@@ -74,6 +81,7 @@ export {
   getRoot,
   getCliRoot,
   buildPath,
+  isFilePresent,
   ensureDirectory,
   readFile,
   writeFile,
