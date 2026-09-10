@@ -5,7 +5,7 @@ async function manageDeps(options: Partial<Config>): Promise<void> {
   const { database, language, logger: loggerOption } = options;
 
   const deps = ['express', 'uuid', 'dotenv'];
-  const devDeps = [];
+  const devDeps = ['rimraf', 'prettier'];
 
   if (database === 'mysql') {
     deps.push('mysql2');

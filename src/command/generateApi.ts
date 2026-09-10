@@ -1,9 +1,17 @@
 import { readConfig } from '../utils/config';
 import buildTemplate from '../utils/buildTemplate';
-import { buildPath, getCliRoot, getRoot, isFilePresent } from '../utils/file';
+import {
+  buildPath,
+  getCliRoot,
+  getRoot,
+  isFilePresent,
+  readAsJson,
+  saveAsJson
+} from '../utils/file';
 import { manageDeps } from './dependencyManager';
+import { PackageJson } from 'type-fest';
 
-//eslint-disable-next-line complexity
+/* eslint-disable complexity */
 async function generateApi() {
   const { language, type, database, docker, structure, logger, apis, schemas } =
     await readConfig();
@@ -13,7 +21,7 @@ async function generateApi() {
   const cliRoot = getCliRoot();
   const appRoot = getRoot();
   const templateRoot = buildPath(cliRoot, 'src', 'templates');
-  const outputRoot = buildPath(appRoot, 'src');
+  const outputRoot = buildPath(appRoot, 'output');
 
   //index file
   buildTemplate(
@@ -194,6 +202,30 @@ async function generateApi() {
     database,
     logger
   });
+
+  updatePkj(buildPath(appRoot, 'package.json'), language, outputExt);
+}
+
+function updatePkj(filePath: string, language: string, outputExt: string) {
+  const pkg = readAsJson(filePath) as PackageJson;
+
+  //write pkg json scripts
+  if (pkg.scripts) {
+    pkg.scripts.dev = `nodemon src/app${outputExt}`;
+    pkg.scripts.start = `node dist/app.js`;
+    pkg.scripts.format = `prettier --log-level=silent --write .`;
+    pkg.scripts.format = `prettier --log-level=silent --check .`;
+    pkg.scripts.format = `rimraf dist`;
+    pkg.scripts.build = `tsc --project tsconfig.json`;
+    pkg.scripts.pretest = `npm run clean && npm run build`;
+    pkg.scripts.test = `jest`;
+    pkg.scripts['test:coverage'] = `jest --coverage --runInBand`;
+    pkg.scripts.prelint = `npm run clean && npm run build`;
+    pkg.scripts['lint:fix'] = `eslint --fix src tests`;
+    pkg.scripts.lint = `eslint src tests`;
+  }
+
+  saveAsJson(filePath, pkg);
 }
 
 export default generateApi;
